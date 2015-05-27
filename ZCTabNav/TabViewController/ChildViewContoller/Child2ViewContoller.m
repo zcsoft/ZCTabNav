@@ -28,6 +28,17 @@
     UINavigationController *nav = self.navigationController;
     if(nav != nil)
         self.dismissButton.hidden = YES;
+    
+    self.navigationItem.rightBarButtonItem = [self createRightButton];
+}
+
+//创建一个返回按钮
+-(UIBarButtonItem*) createRightButton
+{
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] init];
+    backItem.title = @"Right";
+    backItem.tintColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1];
+    return backItem;
 }
 
 - (void)didReceiveMemoryWarning

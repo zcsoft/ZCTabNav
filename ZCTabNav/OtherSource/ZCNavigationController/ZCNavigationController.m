@@ -9,10 +9,6 @@
 #import "ZCNavigationController.h"
 
 @interface ZCNavigationController ()
-<
-    UINavigationControllerDelegate,
-    UIGestureRecognizerDelegate
->
 
 @end
 
@@ -32,11 +28,9 @@
     [self.navigationBar setTranslucent:YES];
     [self.navigationBar setBarStyle:UIBarStyleBlackTranslucent];
     [self.navigationBar setTitleTextAttributes:@{ NSFontAttributeName:[UIFont boldSystemFontOfSize:18.0], NSForegroundColorAttributeName:[UIColor whiteColor]}];
-
-    //设置滑动返回代理
-    __weak ZCNavigationController *weakSelf = self;
-    self.interactivePopGestureRecognizer.delegate = weakSelf;
-    self.delegate = weakSelf;
+    
+    //返回按钮上标题的颜色
+    self.navigationBar.tintColor = [UIColor whiteColor];
 }
 
 - (void)didReceiveMemoryWarning
@@ -45,58 +39,30 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - 定义返回按钮
-
-//左侧返回按钮动作
--(void)popself
-{
-    [self popViewControllerAnimated:YES];
-}
+#pragma mark - 定制返回按钮
 
 //创建一个返回按钮
 -(UIBarButtonItem*) createBackButton
 {
-    UIBarButtonItem *backItem=[[UIBarButtonItem alloc] init];
-    backItem.title = @"";
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] init];
+    backItem.title = @"123";
     if(self.backImage == nil)
         self.backImage = [UIImage imageNamed:@"ZCNavigation_BackImage.png"];
-    backItem.image = self.backImage;
+    //图片右侧2像素将被拉伸，所以图片右侧需要有两像素的透明空白
+    [backItem setBackButtonBackgroundImage:[self.backImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, self.backImage.size.width-2, 0, 1)]
+                                  forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     backItem.tintColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1];
-    backItem.action = @selector(popself);
-    
     return backItem;
 }
-
-#pragma mark - 解决滑动返回问题
 
 //重载push视图
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    //push过程中禁止滑动返回手势
-    self.interactivePopGestureRecognizer.enabled = NO;
-    
+    //设置backBarButtonItem
+    UIViewController *vc = [self.viewControllers lastObject];
+    vc.navigationItem.backBarButtonItem = [self createBackButton];
     //push视图
     [super pushViewController:viewController animated:animated];
-    //如果leftBarButtonItem没设置过，并且不是root视图
-    if (viewController.navigationItem.leftBarButtonItem == nil && [self.viewControllers count] > 1)
-    {
-        //设置leftBarButtonItem
-        viewController.navigationItem.leftBarButtonItem = [self createBackButton];
-        //指定代理为自己
-        super.interactivePopGestureRecognizer.delegate = (id)self;
-    }
-}
-
-//navigation的一个视图将要显示（push和pop都会执行），viewController－将要显示的视图
-- (void)navigationController:(UINavigationController *)navigationController
-       didShowViewController:(UIViewController *)viewController
-                    animated:(BOOL)animate
-{
-    //如果不是root视图，则打开滑动返回手势
-    if([self.viewControllers count] > 1)
-        self.interactivePopGestureRecognizer.enabled = YES;
-    else
-        self.interactivePopGestureRecognizer.enabled = NO;
 }
 
 @end
